@@ -14,43 +14,72 @@ export default function Page() {
   const [course, setCourse] = useState("");
   const [studentId, setStudentId] = useState("");
   const [editId, setEditId] = useState<number | null>(null);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
 
-  // GET all students
+  // 🔹 GET all students
   async function fetchStudents() {
     const res = await fetch("/api/students");
     const data = await res.json();
     setStudents(data);
   }
 
-  // ADD
+  // 🔹 ADD student
   async function addStudent() {
+    if (!name || !course) return;
+
     await fetch("/api/students", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, course }),
     });
+
     setName("");
     setCourse("");
     fetchStudents();
   }
 
-  // UPDATE
+  // 🔹 UPDATE student
   async function updateStudent() {
+    if (!editId) return;
+
     await fetch("/api/students", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: editId, name, course }),
     });
+
     setEditId(null);
     setName("");
     setCourse("");
     fetchStudents();
   }
 
-  // DELETE
+  // 🔹 DELETE student
   async function deleteStudent(id: number) {
-    await fetch(`/api/students?id=${id}`, { method: "DELETE" });
+    await fetch(`/api/students?id=${id}`, {
+      method: "DELETE",
+    });
+
     fetchStudents();
+  }
+
+  // 🔹 SEARCH + HIGHLIGHT
+  function searchStudentById() {
+    const found = students.find(
+      (s) => s.id === Number(studentId)
+    );
+
+    if (!found) {
+      alert("Student not found");
+      return;
+    }
+
+    setHighlightId(found.id);
+
+    // auto remove highlight after 2 sec
+    setTimeout(() => {
+      setHighlightId(null);
+    }, 2000);
   }
 
   useEffect(() => {
@@ -62,7 +91,7 @@ export default function Page() {
       <div className="card">
         <h1>Student Management</h1>
 
-        {/* ADD */}
+        {/* 🔹 ADD / EDIT */}
         <h2>{editId ? "Edit Student" : "Add Student"}</h2>
         <div className="row">
           <input
@@ -75,6 +104,7 @@ export default function Page() {
             value={course}
             onChange={(e) => setCourse(e.target.value)}
           />
+
           {editId ? (
             <button className="btn primary" onClick={updateStudent}>
               Update
@@ -86,7 +116,7 @@ export default function Page() {
           )}
         </div>
 
-        {/* SEARCH */}
+        {/* 🔹 SEARCH */}
         <h2>Search Student By ID</h2>
         <div className="row">
           <input
@@ -94,16 +124,25 @@ export default function Page() {
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
           />
-          <button className="btn dark">Search</button>
+          <button className="btn dark" onClick={searchStudentById}>
+            Search
+          </button>
         </div>
 
-        {/* LIST */}
+        {/* 🔹 LIST */}
         <h2>All Students</h2>
+
         {students.map((s) => (
-          <div className="student" key={s.id}>
+          <div
+            key={s.id}
+            className={`student ${
+              highlightId === s.id ? "highlight" : ""
+            }`}
+          >
             <span>
               {s.id} – {s.name} – {s.course}
             </span>
+
             <div>
               <button
                 className="btn success"
@@ -115,6 +154,7 @@ export default function Page() {
               >
                 Edit
               </button>
+
               <button
                 className="btn danger"
                 onClick={() => deleteStudent(s.id)}

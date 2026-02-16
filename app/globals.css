@@ -246,3 +246,10 @@ input {
     gap: 10px;
   }
 }
+.highlight {
+  background: #fef3c7 !important;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+  transition: all 0.3s ease;
+}
+
