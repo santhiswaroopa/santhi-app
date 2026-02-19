@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+
 type Student = {
   id: number;
   name: string;
@@ -27,17 +28,19 @@ export default function StudentPage() {
 
   // 🔹 GET – Student by ID
   async function fetchStudentById() {
-    const res = await fetch(`/api/students?id=${studentId}`);
+  if (!studentId) return;
 
-    if (!res.ok) {
-      alert("Student not found");
-      setSingleStudent(null);
-      return;
-    }
+  const res = await fetch(`/api/students?id=${Number(studentId)}`);
 
-    const data = await res.json();
-    setSingleStudent(data);
+  if (!res.ok) {
+    alert("Student not found");
+    setSingleStudent(null);
+    return;
   }
+
+  const data = await res.json();
+  setSingleStudent(data);
+}
 
   // 🔹 POST – Add student
   async function addStudent() {
@@ -83,80 +86,113 @@ export default function StudentPage() {
     fetchAllStudents();
   }, []);
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Student Management</h1>
+return (
+  <div className="w-full max-w-4xl bg-white p-10 rounded-2xl shadow-2xl mt-10 mb-10">
 
-      {/* 🔹 Add / Edit Form */}
-      <h3>{editId ? "Edit Student" : "Add Student"}</h3>
+    <h1 className="text-4xl font-bold text-center mb-10">
+      Student Management
+    </h1>
 
+    {/* Add Student */}
+    <h2 className="text-2xl font-semibold mb-4">
+      {editId ? "Edit Student" : "Add Student"}
+    </h2>
+
+    <div className="flex gap-4 mb-8">
       <input
+        type="text"
         placeholder="Name"
         value={name}
         onChange={e => setName(e.target.value)}
+        className="flex-1 p-3 border rounded-lg"
       />
 
       <input
+        type="text"
         placeholder="Course"
         value={course}
         onChange={e => setCourse(e.target.value)}
+        className="flex-1 p-3 border rounded-lg"
       />
 
-      {editId ? (
-        <button onClick={updateStudent}>Update</button>
-      ) : (
-        <button onClick={addStudent}>Add</button>
-      )}
+      <button
+        onClick={editId ? updateStudent : addStudent}
+        className="bg-blue-600 text-white px-6 rounded-lg hover:bg-blue-700 transition"
+      >
+        {editId ? "Update" : "Add"}
+      </button>
+    </div>
 
-      <hr />
+    {/* Search */}
+    <h2 className="text-2xl font-semibold mb-4">
+      Search Student By ID
+    </h2>
 
-      {/* 🔹 Get Student By ID */}
-      <h3>Search Student By ID</h3>
-
+    <div className="flex gap-4 mb-6">
       <input
+        type="text"
         placeholder="Student ID"
         value={studentId}
         onChange={e => setStudentId(e.target.value)}
+        className="flex-1 p-3 border rounded-lg"
       />
-      <button onClick={fetchStudentById}>Search</button>
 
-      {singleStudent && (
-        <p>
-          {singleStudent.id} – {singleStudent.name} –{" "}
-          {singleStudent.course}
-        </p>
-      )}
+      <button
+        onClick={fetchStudentById}
+        className="bg-gray-700 text-white px-6 rounded-lg hover:bg-gray-800 transition"
+      >
+        Search
+      </button>
+    </div>
 
-      <hr />
+    {singleStudent && (
+      <div className="bg-yellow-100 border-2 border-yellow-400 p-4 rounded-lg mb-6">
+        {singleStudent.id} – {singleStudent.name} – {singleStudent.course}
+      </div>
+    )}
 
-      {/* 🔹 Display All Students */}
-      <h3>All Students</h3>
+    {/* All Students */}
+    <h2 className="text-2xl font-semibold mb-4">
+      All Students
+    </h2>
 
-      <ul>
-        {students.map(student => (
-          <li key={student.id}>
-            {student.id} – {student.name} – {student.course}
+   <div className="space-y-4">
+  {students.map((student, index) => (
+    <div
+      key={student.id}
+      className="bg-gray-100 p-4 rounded-xl flex justify-between items-center"
+    >
+      <span>
+        {index + 1} – {student.name} – {student.course}
+      </span>
 
+
+          <div className="flex gap-3">
             <button
-              style={{ marginLeft: 10 }}
               onClick={() => {
                 setEditId(student.id);
                 setName(student.name);
                 setCourse(student.course);
               }}
+              className="bg-green-600 text-white px-4 py-1 rounded-lg hover:bg-green-700"
             >
               Edit
             </button>
 
             <button
-              style={{ marginLeft: 5 }}
               onClick={() => deleteStudent(student.id)}
+              className="bg-red-600 text-white px-4 py-1 rounded-lg hover:bg-red-700"
             >
               Delete
             </button>
-          </li>
-        ))}
-      </ul>
+          </div>
+        </div>
+      ))}
     </div>
-  );
+
+  </div>
+);
+
+
+
 }

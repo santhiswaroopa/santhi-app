@@ -7,16 +7,15 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
-  // 🔎 If ID is provided → get single student
   if (id) {
     const [rows]: any = await db.query(
-      "SELECT * FROM students WHERE id = ?",
-      [Number(id)]
+      "SELECT * FROM employees WHERE id = ?",
+      [id]
     );
 
     if (rows.length === 0) {
       return Response.json(
-        { message: "Student not found" },
+        { message: "Employee not found" },
         { status: 404 }
       );
     }
@@ -24,31 +23,29 @@ export async function GET(req: Request) {
     return Response.json(rows[0]);
   }
 
-  // 📋 Otherwise → get all students
   const [rows] = await db.query(
-    "SELECT * FROM students"
+    "SELECT * FROM employees"
   );
 
   return Response.json(rows);
 }
 
-
 /* ======================
    POST → INSERT
 ====================== */
 export async function POST(req: Request) {
-  const { name, course } = await req.json();
+  const { name, salary } = await req.json();
 
   const [result]: any = await db.query(
-    "INSERT INTO students (name, course) VALUES (?, ?)",
-    [name, course]
+    "INSERT INTO employees (name, salary) VALUES (?, ?)",
+    [name, salary]
   );
 
   return Response.json(
     {
       id: result.insertId,
       name,
-      course
+      salary
     },
     { status: 201 }
   );
@@ -58,21 +55,21 @@ export async function POST(req: Request) {
    PUT → UPDATE
 ====================== */
 export async function PUT(req: Request) {
-  const { id, name, course } = await req.json();
+  const { id, name, salary } = await req.json();
 
   const [result]: any = await db.query(
-    "UPDATE students SET name = ?, course = ? WHERE id = ?",
-    [name, course, id]
+    "UPDATE employees SET name = ?, salary = ? WHERE id = ?",
+    [name, salary, id]
   );
 
   if (result.affectedRows === 0) {
     return Response.json(
-      { message: "Student not found" },
+      { message: "Employee not found" },
       { status: 404 }
     );
   }
 
-  return Response.json({ id, name, course });
+  return Response.json({ id, name, salary });
 }
 
 /* ======================
@@ -83,13 +80,13 @@ export async function DELETE(req: Request) {
   const id = searchParams.get("id");
 
   const [result]: any = await db.query(
-    "DELETE FROM students WHERE id = ?",
+    "DELETE FROM employees WHERE id = ?",
     [id]
   );
 
   if (result.affectedRows === 0) {
     return Response.json(
-      { message: "Student not found" },
+      { message: "Employee not found" },
       { status: 404 }
     );
   }
