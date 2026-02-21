@@ -100,13 +100,13 @@ export default function EmployeesPage() {
       <h2 className="text-2xl font-semibold mb-4">All Employees</h2>
 
       <div className="space-y-4">
-        {employees.map((emp) => (
+        {employees.map((emp,index) => (
           <div
             key={emp.id}
             className="bg-gray-200 p-4 rounded-xl flex justify-between items-center"
           >
             <span>
-              {emp.id} – {emp.name} – ₹{emp.salary}
+               {index + 1} – {emp.name} – ₹{emp.salary}
             </span>
 
             <div className="flex gap-3">
